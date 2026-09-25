@@ -44,11 +44,11 @@ void splitCommand(char command[], std::deque<std::string> &historique, const int
         else if (strcmp(prog, "random") == 0)
         {
             array<int, 2> param = stringInt(args);
-            string commandes[3] = {"ls", "pwd", "man"};
+            array<string, 3> commandes = {"ls", "ps", "pwd"};
             unordered_map<string, vector<string>> options;
-            options["ls"] = {"-a", "-l", "-h", "-R"};
-            options["pwd"] = {"-L", "-P"};
-            options["man"] = {"-f", "-k", "-a"};
+            options["ls"] = {"", "-a", "-l", "-h", "-R"};
+            options["pwd"] = {"", "-L", "-P"};
+            options["ps"] = {"", "-e", "-f", "-o"};
             int nbrCommande = param[0];
             int freqSave = param[1];
             instance ++;
@@ -107,13 +107,13 @@ void execute(
     }
 }
 
-void randomExecute(const string command[],
+void randomExecute(const array<string, 3> &command,
                    const unordered_map<string, vector<string>> &options,
                    std::deque<std::string> &historique,
                    const int &taille, int &instance)
 {
     string commandeComplete;
-    string choix = command[randomInt(command->size())];
+    string choix = command[randomInt(command.size())];
     vector<string> choixOptions = options.at(choix);
     string option = choixOptions[randomInt(choixOptions.size())];
 

@@ -33,7 +33,7 @@ string construireCommande(const std::vector<char *> &args)
     }
     return arguments;
 }
-
+// Extraction des arguments de la commande automatique
 array<int, 2> stringInt(const std::vector<char *> &args)
 {
     vector<string> mots;

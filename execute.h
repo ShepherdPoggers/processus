@@ -17,7 +17,7 @@ void execute(
 );
 
 void splitCommand(char command[], std::deque<std::string> &historique, const int &taille, int &instance);
-void randomExecute(const std::string command[], const std::unordered_map<std::string, std::vector<std::string>> &options, 
+void randomExecute(const std::array<std::string, 3>& command, const std::unordered_map<std::string, std::vector<std::string>> &options, 
                     std::deque<std::string> &historique, const int &taille, int &instance);
 
 #endif
