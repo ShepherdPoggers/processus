@@ -43,24 +43,7 @@ void splitCommand(char command[], std::deque<std::string> &historique, const int
         }
         else if (strcmp(prog, "random") == 0)
         {
-            array<int, 2> param = stringInt(args);
-            array<string, 3> commandes = {"ls", "ps", "pwd"};
-            unordered_map<string, vector<string>> options;
-            options["ls"] = {"", "-a", "-l", "-h", "-R"};
-            options["pwd"] = {"", "-L", "-P"};
-            options["ps"] = {"", "-e", "-f", "-o"};
-            int nbrCommande = param[0];
-            int freqSave = param[1];
-            instance ++;
-            for (int i = 0; i < nbrCommande; i++)
-            {
-                randomExecute(commandes, options, historique, taille, instance);
-                if ((i + 1) % freqSave == 0)
-                {
-                    string nom = "historique" + to_string(instance) + "_" + to_string(i + 1);
-                    ecrireHistorique(historique, nom);
-                }
-            }
+            random(args, historique, taille, instance);
         }
         else
         {
@@ -103,6 +86,33 @@ void execute(
         {
             // Raise exception
             return;
+        }
+    }
+}
+
+void random(
+    const vector<char *> &args,
+    deque<string> &historique,
+    const int &taille,
+    int &instance
+)
+{
+    array<int, 2> param = stringInt(args);
+    array<string, 3> commandes = {"ls", "ps", "pwd"};
+    unordered_map<string, vector<string>> options;
+    options["ls"] = {"", "-a", "-l", "-h", "-R"};
+    options["pwd"] = {"", "-L", "-P"};
+    options["ps"] = {"", "-e", "-f", "-o"};
+    int nbrCommande = param[0];
+    int freqSave = param[1];
+    instance++;
+    for (int i = 0; i < nbrCommande; i++)
+    {
+        randomExecute(commandes, options, historique, taille, instance);
+        if ((i + 1) % freqSave == 0)
+        {
+            string nom = "historique" + to_string(instance) + "_" + to_string(i + 1);
+            ecrireHistorique(historique, nom);
         }
     }
 }
