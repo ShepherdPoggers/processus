@@ -16,64 +16,80 @@ using namespace std;
 using namespace Utiles;
 
 // Séparation des arguments de la commande.
-char ** splitCommand(char command[], vector<char *> &args, char *&prog)
-{
-    args.clear();
-    prog = strtok(command, " ");
-    char *tmp = prog;
-
-    while (tmp != NULL)
-    {
-        args.push_back(tmp);
-        tmp = strtok(NULL, " ");
-    }
-
-    char **argv = new char *[args.size() + 1];
-
-    for (int k = 0; k < args.size(); k++)
-    {
-        argv[k] = args[k];
-    }
-
-    argv[args.size()] = NULL;
-    return argv;
-}
-
-
-void choixFonction(char command[],
-                    std::deque<std::string> &historique,
-                    const int &taille, int &instance,
-                    std::deque<std::string> *historique2)
+char **splitCommand(char command[], vector<char *> &args, char *&prog, bool &background)
 {
     if (strlen(command) != 0)
     {
-        vector<char *> args;
-        char *prog = nullptr;
-        char **argv = splitCommand(command, args, prog);
-        if (prog == nullptr)
-        {
-            delete[] argv;
-            throw ShellEnter();
-        }
-        if (prog[0] == '.')
-        {
-            std::system(args[0]);
-        }
-        else if (strcmp(prog, "random") == 0)
-        {
+        args.clear();
+        prog = strtok(command, " ");
+        char *tmp = prog;
 
-            random(args, historique, taille, instance);
-        }
-        else
+        while (tmp != NULL)
         {
-            execute(historique, taille, prog, argv, args, historique2);
+            args.push_back(tmp);
+            tmp = strtok(NULL, " ");
         }
-        delete[] argv;
+
+        background = !args.empty() && strcmp(args.back(), "&") == 0;
+
+        if (background)
+        {
+            args.pop_back(); // Retirer & des arguments
+        }
+
+        if (args.empty())
+        {
+            throw ShellEnter(); // Cas où la commande contient seulement &
+        }
+
+        prog = args[0];
+
+        char **argv = new char *[args.size() + 1];
+
+        for (int k = 0; k < args.size(); k++)
+        {
+            argv[k] = args[k];
+        }
+
+        argv[args.size()] = NULL;
+        return argv;
     }
     else
     {
         throw ShellEnter();
     }
+}
+
+// Permet de sélectionner la bonne fonction à exécuter.
+void choixFonction(char command[],
+                   std::deque<std::string> &historique,
+                   const int &taille, int &instance,
+                   std::deque<std::string> *historique2)
+{
+
+    vector<char *> args;
+    char *prog = nullptr;
+    bool background = false;
+    char **argv = splitCommand(command, args, prog, background);
+    if (prog == nullptr)
+    {
+        delete[] argv;
+        throw ShellEnter();
+    }
+    if (prog[0] == '.')
+    {
+        std::system(args[0]);
+    }
+    else if (strcmp(prog, "random") == 0)
+    {
+
+        random(args, historique, taille, instance);
+    }
+    else
+    {
+        execute(historique, taille, prog, argv, args,background, historique2);
+    }
+    delete[] argv;
 }
 
 // Permet d'executer une commande du shell avec un fork et execvp.
@@ -82,7 +98,7 @@ void execute(
     int taille,
     const char *prog,
     char *const argv[],
-    const std::vector<char *> &args,
+    const std::vector<char *> &args, bool background,
     std::deque<std::string> *historique2 = nullptr)
 {
     pid_t kidpid = fork();
@@ -111,10 +127,16 @@ void execute(
         if (historique.size() > taille)
             historique.pop_front();
 
-        if (waitpid(kidpid, 0, 0) < 0)
+        if (!background)
         {
-            // Raise exception
-            return;
+            while (waitpid(kidpid, nullptr, 0) < 0)
+            {
+                if (errno == EINTR)
+                    continue;
+
+                perror("waitpid");
+                break;
+            }
         }
     }
 }

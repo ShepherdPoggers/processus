@@ -22,6 +22,6 @@ La fonction random s'utilise comme suit :
 ```bash
 random <nombreCommandes> <frequenceSauvegarde>
 ```
-où :
+Où :
 - `<nombreCommandes>` représente le nombre de commandes aléatoires qui seront exécutées ;
 - `<frequenceSauvegarde>` représente la fréquence à laquelle on écrit un fichier d'historique.
