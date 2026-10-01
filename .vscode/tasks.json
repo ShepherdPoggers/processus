@@ -1,6 +1,33 @@
 {
     "tasks": [
         {
+            "type": "process",
+            "label": "Compiler le shell (debug)",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-O0",
+                "-std=c++17",
+                "${workspaceFolder}/src/main.cpp",
+                "${workspaceFolder}/src/execute.cpp",
+                "${workspaceFolder}/src/utiles.cpp",
+                "-o",
+                "${workspaceFolder}/shell"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "detail": "Compile tous les fichiers du shell avec les symboles de débogage."
+        },
+        {
             "type": "cppbuild",
             "label": "C/C++: g++ générer le fichier actif",
             "command": "/usr/bin/g++",

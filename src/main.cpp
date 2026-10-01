@@ -8,8 +8,9 @@
 #include <deque>
 #include "execute.h"
 #include "utiles.h"
+#include "shellEnter.h"
 using namespace std;
-
+using namespace Utiles;
 // Parcours un deque<string> et écrit les résultats dans la console et dans un txt
 
 int main()
@@ -35,7 +36,20 @@ int main()
       }
       else
       {
-         splitCommand(command, historique, taille, instance);
+         try
+         {
+            splitCommand(command, historique, taille, instance);
+         }
+         catch(const ShellEnter& e)
+         {
+            std::cerr << "";
+         }
+         catch(const std::exception& e)
+         {
+           
+            std::cerr << e.what() << endl;
+         }
+         
       }
    }
 
