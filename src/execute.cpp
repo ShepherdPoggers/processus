@@ -1,5 +1,5 @@
 #include "execute.h"
-
+#include <chrono>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -16,51 +16,65 @@ using namespace std;
 using namespace Utiles;
 
 // Séparation des arguments de la commande.
-void splitCommand(char command[],
-                  std::deque<std::string> &historique,
-                  const int &taille, int &instance,
-                  std::deque<std::string> *historique2)
+char ** splitCommand(char command[], vector<char *> &args, char *&prog)
+{
+    args.clear();
+    prog = strtok(command, " ");
+    char *tmp = prog;
+
+    while (tmp != NULL)
+    {
+        args.push_back(tmp);
+        tmp = strtok(NULL, " ");
+    }
+
+    char **argv = new char *[args.size() + 1];
+
+    for (int k = 0; k < args.size(); k++)
+    {
+        argv[k] = args[k];
+    }
+
+    argv[args.size()] = NULL;
+    return argv;
+}
+
+
+void choixFonction(char command[],
+                    std::deque<std::string> &historique,
+                    const int &taille, int &instance,
+                    std::deque<std::string> *historique2)
 {
     if (strlen(command) != 0)
     {
         vector<char *> args;
-        char *prog = strtok(command, " ");
-        char *tmp = prog;
-
-        while (tmp != NULL)
+        char *prog = nullptr;
+        char **argv = splitCommand(command, args, prog);
+        if (prog == nullptr)
         {
-            args.push_back(tmp);
-            tmp = strtok(NULL, " ");
+            delete[] argv;
+            throw ShellEnter();
         }
-
-        char **argv = new char *[args.size() + 1];
-
-        for (int k = 0; k < args.size(); k++)
-        {
-            argv[k] = args[k];
-        }
-
-        argv[args.size()] = NULL;
-
         if (prog[0] == '.')
         {
             std::system(args[0]);
         }
         else if (strcmp(prog, "random") == 0)
         {
+
             random(args, historique, taille, instance);
         }
         else
         {
             execute(historique, taille, prog, argv, args, historique2);
         }
+        delete[] argv;
     }
     else
     {
         throw ShellEnter();
     }
 }
-
 
 // Permet d'executer une commande du shell avec un fork et execvp.
 void execute(
@@ -112,6 +126,8 @@ void random(
     const int &taille,
     int &instance)
 {
+    chrono::steady_clock::time_point T1 = std::chrono::steady_clock::now();
+
     array<int, 2> param = stringInt(args);
     array<string, 3> commandes = {"ls", "ps", "pwd"};
     unordered_map<string, vector<string>> options;
@@ -134,6 +150,10 @@ void random(
     }
     string nom = "historique" + to_string(instance) + "_Complet";
     ecrireHistorique(*historiqueComplet, nom);
+    chrono::steady_clock::time_point T2 = std::chrono::steady_clock::now();
+    chrono::duration<double> duree = T2 - T1;
+    std::cout << "Temps d'exécution : "
+              << duree.count() << " secondes\n";
 }
 
 // Choisi aléatoirement la commande à exécuter
@@ -148,6 +168,6 @@ void randomExecute(const array<string, 3> &command,
     string option = choixOptions[randomInt(choixOptions.size())];
     commandeComplete += choix + " " + option;
 
-    // Appelle de splitCommande  pour aller formater correctement la commande et rentrer dans execute
-    splitCommand(commandeComplete.data(), historique, taille, instance, historique2);
+    // Appelle de choixFonction pour aller formater correctement la commande et rentrer dans execute
+    choixFonction(commandeComplete.data(), historique, taille, instance, historique2);
 }

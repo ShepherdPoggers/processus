@@ -38,7 +38,7 @@ int main()
       {
          try
          {
-            splitCommand(command, historique, taille, instance);
+            choixFonction(command, historique, taille, instance, nullptr);
          }
          catch(const ShellEnter& e)
          {

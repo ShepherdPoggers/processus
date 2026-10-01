@@ -12,12 +12,15 @@ namespace Utiles
     {
         nom += ".txt";
         string path = "historique/";
-
+        int dequeSize = historique.size();
         ofstream fichierHistorique(path + nom);
         for (int i = 0; i < historique.size(); i++)
         {
             fichierHistorique << historique.size() - i << historique[i] << endl;
-            cout << historique.size() - i << historique[i] << endl;
+            
+            // Pour éviter d'encombrer la console lors de l'écriture de l'historique complet. 
+            if(dequeSize < 6)
+                cout << historique.size() - i << historique[i] << endl;
         }
         fichierHistorique.close();
     }
